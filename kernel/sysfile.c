@@ -68,6 +68,7 @@ sys_dup(void)
 uint64
 sys_read(void)
 {
+  myproc()->readcount++;
   struct file *f;
   int n;
   uint64 p;
