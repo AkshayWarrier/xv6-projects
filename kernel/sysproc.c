@@ -92,6 +92,19 @@ sys_uptime(void)
 }
 
 uint64
+sys_settickets(void)
+{
+  int tickets;
+  argint(0, &tickets);
+  if (tickets < 1) {
+    return -1;
+  }
+  totaltickets += tickets - myproc()->tickets;
+  myproc()->tickets = tickets;
+  return 0;
+}
+
+uint64
 sys_getpinfo(void)
 {
   uint64 psaddr;
@@ -105,6 +118,7 @@ sys_getpinfo(void)
     pstat.inuse[i] = (p->state != UNUSED);
     pstat.tickets[i] = p->tickets; 
     pstat.pid[i] = p->pid;
+    pstat.ticks[i] = p->ticks;
     release(&p->lock);
     i++;
   }

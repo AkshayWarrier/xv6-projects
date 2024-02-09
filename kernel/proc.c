@@ -5,7 +5,8 @@
 #include "spinlock.h"
 #include "proc.h"
 #include "defs.h"
-#include "rand.h"
+// #include "rand.h"
+#include <stdlib.h>
 
 struct cpu cpus[NCPU];
 
@@ -456,28 +457,37 @@ scheduler(void)
   for(;;){
     // Avoid deadlock by ensuring that devices can interrupt.
     intr_on();
-    int winner = rand(totaltickets + 1);
+    int winner = rand()%totaltickets;
+    printf("%d\n", totaltickets);
+    int found_winner = 0;
     int counter = 0;
     for(p = proc; p < &proc[NPROC]; p++) {
       acquire(&p->lock);
-      if(p->state == RUNNABLE) {
-        counter += p->tickets;
-        if (counter <= winner) {
-          release(&p->lock);
-          continue;
-        }
-        // Switch to chosen process.  It is the process's job
-        // to release its lock and then reacquire it
-        // before jumping back to us.
-        p->state = RUNNING;
-        c->proc = p;
-        swtch(&c->context, &p->context);
-
-        // Process is done running for now.
-        // It should have changed its p->state before coming back.
-        c->proc = 0;
+      counter += p->tickets;
+      if ((counter) <= winner || p->state != RUNNABLE) {
+        release(&p->lock);
+        continue;
       }
-      release(&p->lock);
+      found_winner = 1;
+      // Switch to chosen process.  It is the process's job
+      // to release its lock and then reacquire it
+      // before jumping back to us.
+      p->state = RUNNING;
+      c->proc = p;
+      swtch(&c->context, &p->context);
+      p->ticks++;
+
+      // Process is done running for now.
+      // It should have changed its p->state before coming back.
+      c->proc = 0;
+    release(&p->lock);
+
+    // Run lottery again
+    if (found_winner) {
+      found_winner = 0;
+      break;
+    }
+
     }
   }
 }

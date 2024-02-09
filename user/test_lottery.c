@@ -3,11 +3,30 @@
 #include "kernel/param.h"
 #include "user/user.h"
 
-int main(int argc, char *argv[]) {
+int 
+main() {
   struct pstat p;
-  getpinfo(&p);
-  for (int i = 0; i < NPROC; i++) 
-    printf("%d %d %d\n", p.inuse[i], p.tickets[i], p.pid[i]);
+  
+  if (fork() == 0) {
+    char* args[] = {"exist","10"};
+    exec("/exist", args);
+  }
+  if (fork() == 0) {
+    char* args[] = {"exist","20"};
+    exec("/exist", args);
+  }
+  if (fork() == 0) {
+    char* args[] = {"exist","30"};
+    exec("/exist", args);
+  }
+  
+
+  while (1) {
+    getpinfo(&p);
+    for (int i = 0; i < NPROC; i++) 
+      if (p.inuse[i])
+        printf("%d %d %d\n", p.pid[i], p.tickets[i], p.ticks[i]);
+  }
+
   return 0;
 }
-
