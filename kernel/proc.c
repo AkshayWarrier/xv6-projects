@@ -5,7 +5,6 @@
 #include "spinlock.h"
 #include "proc.h"
 #include "defs.h"
-// #include "rand.h"
 #include <stdlib.h>
 
 struct cpu cpus[NCPU];

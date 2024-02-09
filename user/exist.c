@@ -1,5 +1,4 @@
 #include "kernel/types.h"
-// #include "kernel/param.h"
 #include "user/user.h"
 
 // Run this to make a process run indefinetly

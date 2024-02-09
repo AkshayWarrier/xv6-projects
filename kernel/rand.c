@@ -1,5 +1,4 @@
 #include "rand.h"
-#include <stdio.h>
 
 unsigned long int next = 1;
 
